@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import FormInput from "../form-input/forum-input.component";
 import Button from "../button/button.component";
 import "./sign-in-form.styles.scss";
+import { UserContext } from "../../contexts/user.context";
+
 import {
   createAuthUserWithEmailAndPassword,
   createUserDocumentFromAuth,
   signInWithGoogle,
   signInAuthUserWithEmailAndPassword,
 } from "../../utils/firebase/firbase.utils";
-import { logDOM } from "@testing-library/react";
 
 const defaultFromFields = {
   email: "",
@@ -17,26 +18,27 @@ const defaultFromFields = {
 const SignInForm = () => {
   const [formFields, setFormFields] = useState(defaultFromFields);
   const { email, password } = formFields;
+  const { setCurrentUser } = useContext(UserContext);
 
   const resetFormFields = () => {
     setFormFields(defaultFromFields);
   };
 
-  const SignInWithGoogle = async () => {
+  const signInWithGoogle = async () => {
     const { user } = await signInWithGoogle();
-    createUserDocumentFromAuth(user);
+    await createUserDocumentFromAuth(user);
   };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await signInAuthUserWithEmailAndPassword(
+      const { user } = await signInAuthUserWithEmailAndPassword(
         email,
         password
       );
+      setCurrentUser(user);
+
       resetFormFields();
-      console.log("response", response);
     } catch (error) {
       switch (error.code) {
         case "auth/email-already-in-use":

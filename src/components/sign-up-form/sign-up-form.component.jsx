@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import FormInput from "../form-input/forum-input.component";
 import Button from "../button/button.component";
 import "./sign-up-form.styles.scss";
+import { UserContext } from "../../contexts/user.context";
 import {
   createAuthUserWithEmailAndPassword,
   createUserDocumentFromAuth,
@@ -16,6 +17,8 @@ const defaultFromFields = {
 const SignUpForm = () => {
   const [formFields, setFormFields] = useState(defaultFromFields);
   const { displayName, email, password, confirmPassword } = formFields;
+  const { setCurrentUser } = useContext(UserContext);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!password === confirmPassword) {
@@ -27,6 +30,7 @@ const SignUpForm = () => {
         email,
         password
       );
+      setCurrentUser(user);
 
       await createUserDocumentFromAuth(user, { displayName });
     } catch (error) {
